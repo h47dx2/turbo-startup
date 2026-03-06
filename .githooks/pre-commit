@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -e
+
+FIXED_NAME="h47dx2"
+FIXED_EMAIL="yqzhu0914@gmail.com"
+
+AUTHOR_NAME="$(git config user.name || true)"
+AUTHOR_EMAIL="$(git config user.email || true)"
+
+FORBIDDEN_PATTERNS=(
+  "K[0-9]{6,}"
+  "^[0-9]{6,}$"
+)
+
+NEED_FIX=false
+
+for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+  if [[ "$AUTHOR_NAME" =~ $pattern ]] || [[ "$AUTHOR_EMAIL" =~ $pattern ]]; then
+    NEED_FIX=true
+    break
+  fi
+done
+
+if [ "$NEED_FIX" = true ]; then
+  echo "⚠️  Detected corporate ID in git author info."
+  echo "    Auto-fixing for this repository:"
+  echo "      user.name  → $FIXED_NAME"
+  echo "      user.email → $FIXED_EMAIL"
+  echo
+
+  git config user.name "$FIXED_NAME"
+  git config user.email "$FIXED_EMAIL"
+
+  echo "✅ Git author info fixed. Commit will continue."
+  echo
+fi
+
+exit 0

@@ -1,0 +1,32 @@
+{
+  "name": "@repo/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm build && tsx --test test/**/*.test.ts",
+    "test:e2e:xss": "pnpm build && playwright test e2e/xss-register.spec.ts",
+    "format": "echo \"No formatter configured\""
+  },
+  "dependencies": {
+    "@repo/api-client": "workspace:*",
+    "@repo/validation": "workspace:*",
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0",
+    "@types/node": "24.6.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "eslint": "9.37.0",
+    "eslint-config-next": "16.1.6",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}
