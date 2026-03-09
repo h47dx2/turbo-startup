@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint .",
+    "check:tailwind": "eslint . --ext ts,tsx,js,jsx",
     "typecheck": "tsc --noEmit",
     "test": "pnpm build && tsx --test test/**/*.test.ts",
     "test:e2e:xss": "pnpm build && playwright test e2e/xss-register.spec.ts",
@@ -15,17 +16,22 @@
   "dependencies": {
     "@repo/api-client": "workspace:*",
     "@repo/validation": "workspace:*",
+    "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@playwright/test": "1.56.0",
+    "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "24.6.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "9.37.0",
     "eslint-config-next": "16.1.6",
+    "eslint-plugin-tailwindcss": "4.0.0-beta.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   }

@@ -1,0 +1,337 @@
+{
+  "version": "2.8",
+  "children": [
+    {
+      "type": "frame",
+      "id": "hVSSl",
+      "x": 0,
+      "y": 0,
+      "name": "Login Page",
+      "width": 1440,
+      "height": 960,
+      "fill": "#FFFFFF",
+      "children": [
+        {
+          "type": "frame",
+          "id": "5XFoh",
+          "name": "Brand Panel",
+          "metadata": {
+            "type": "unsplash",
+            "username": "aivenieks",
+            "link": "https://unsplash.com/@aivenieks",
+            "author": "Aiva Apsite"
+          },
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1659284994825-a7bd3b5c1804?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMwNDM0Nzd8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 36,
+          "children": [
+            {
+              "type": "frame",
+              "id": "VUecU",
+              "name": "overlay",
+              "width": 620,
+              "fill": "#00000000",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Fk3Ja",
+                  "name": "label",
+                  "fill": "#93C5FD",
+                  "content": "TURBO STARTUP",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 24,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "SaR0m",
+                  "name": "title",
+                  "fill": "#F8FAFC",
+                  "content": "Built for teams\nthat ship fast.",
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 80,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "JwAmM",
+                  "name": "sub",
+                  "fill": "#E2E8F0",
+                  "content": "A focused workspace for product, engineering, and growth.",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 20
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "KJbqy",
+          "name": "Auth Panel",
+          "width": 560,
+          "height": "fill_container",
+          "fill": "#FFFFFF",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            136,
+            72
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "lVizM",
+              "name": "Login Card",
+              "width": "fill_container",
+              "fill": "#FFFFFF",
+              "cornerRadius": 24,
+              "layout": "vertical",
+              "gap": 32,
+              "padding": 36,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AFO08",
+                  "name": "u8",
+                  "fill": "#0F172A",
+                  "content": "Sign in",
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 38,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "csA9N",
+                  "name": "u9",
+                  "fill": "#64748B",
+                  "content": "Use your work email and password to continue.",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 15
+                },
+                {
+                  "type": "text",
+                  "id": "d0mfN",
+                  "name": "u10",
+                  "fill": "#334155",
+                  "content": "Email",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "uby4c",
+                  "name": "emailInput",
+                  "width": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XAxuH",
+                      "name": "u11",
+                      "fill": "#94A3B8",
+                      "content": "you@company.com",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 14
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "n9A8E",
+                  "name": "u12",
+                  "fill": "#334155",
+                  "content": "Password",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "z063m",
+                  "name": "passInput",
+                  "width": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aydlC",
+                      "name": "u13",
+                      "fill": "#94A3B8",
+                      "content": "••••••••••••",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 14
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jjrIJ",
+                      "name": "passwordEye",
+                      "width": 18,
+                      "height": 12,
+                      "fill": "#00000000",
+                      "cornerRadius": 9,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "B1iq1",
+                          "name": "pupil",
+                          "width": 4,
+                          "height": 4,
+                          "fill": "#94A3B8",
+                          "cornerRadius": 2
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Kx21Y",
+                  "name": "primaryBtn",
+                  "width": "fill_container",
+                  "fill": "#2563EB",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KBws8",
+                      "name": "u14",
+                      "fill": "#FFFFFF",
+                      "content": "Sign in",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cF1gS",
+                  "name": "secondaryBtn",
+                  "width": "fill_container",
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 4,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "8iTw8",
+                      "name": "googleRow",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rb6k8",
+                          "name": "googleIcon",
+                          "metadata": {
+                            "type": "unsplash",
+                            "username": "boliviainteligente",
+                            "link": "https://unsplash.com/@boliviainteligente",
+                            "author": "BoliviaInteligente"
+                          },
+                          "width": 16,
+                          "height": 16,
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "./images/google-firebase-clean.png",
+                            "mode": "fill"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "8gAYP",
+                          "name": "googleText",
+                          "fill": "#3C4043",
+                          "content": "Sign in with Google",
+                          "fontFamily": "Roboto",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IGCpa",
+                  "name": "footerRow",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G4jzz",
+                      "name": "footerLead",
+                      "fill": "#475569",
+                      "content": "No account yet?",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wL5Ux",
+                      "name": "linkWrap",
+                      "layout": "vertical",
+                      "gap": 1,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "063ym",
+                          "name": "linkText",
+                          "fill": "#2563EB",
+                          "content": "Create one",
+                          "fontFamily": "DM Sans",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

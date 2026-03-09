@@ -11,9 +11,15 @@
 ## Quality gates
 - Run lint, typecheck, and build after each milestone.
 - Do not leave the repo in a failing state.
+- Do not introduce any TailwindCSS warnings.
+- Follow TailwindCSS best practices (utility-first, avoid inline styles, avoid conflicting/duplicated classes, and keep class usage consistent and maintainable).
 
 ## Scope control
 - Do not add extra infra or services unless required by the checklist/execution plan.
+
+## UI implementation rules
+- Page UI must be implemented as a 1:1 reproduction of the specified `.pen` file.
+- Do not introduce unrelated visual elements, layout changes, styles, or interactions that are not present in the specified `.pen` file unless explicitly requested.
 
 ## Auth rules
 - Use JWT access tokens.
