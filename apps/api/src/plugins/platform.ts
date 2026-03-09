@@ -16,7 +16,9 @@ export async function registerPlatformPlugins(app: FastifyInstance) {
     credentials: true
   });
 
-  await app.register(fastifyHelmet);
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: env.NODE_ENV === "production"
+  });
   await app.register(fastifySensible);
 
   await app.register(fastifyRateLimit, {

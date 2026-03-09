@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup project",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Install dependencies",
+        "Prisma: generate client",
+        "Prisma: migrate deploy"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Install dependencies",
+      "type": "shell",
+      "command": "pnpm install",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Prisma: generate client",
+      "type": "shell",
+      "command": "pnpm db:generate",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Prisma: migrate deploy",
+      "type": "shell",
+      "command": "pnpm --filter @repo/database exec prisma migrate deploy",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: turbo (all workspaces)",
+      "type": "shell",
+      "command": "zsh",
+      "args": [
+        "-lc",
+        "repo=\"${workspaceFolder}\"; pids=\"$(pgrep -f \"$repo/.+turbo run dev\" || true; pgrep -f \"$repo/.+next dev -p 3000\" || true; pgrep -f \"$repo/.+tsx.+src/server.ts\" || true)\"; pids=$(echo \"$pids\" | sed '/^$/d' | sort -u); if [ -n \"$pids\" ]; then echo \"[dev-task] kill old dev pids -> $pids\"; echo \"$pids\" | xargs kill -9; fi; for p in 3000 4000; do pids=$(lsof -ti tcp:$p || true); if [ -n \"$pids\" ]; then echo \"[dev-task] kill :$p -> $pids\"; echo \"$pids\" | xargs kill -9; fi; done; pnpm dev"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

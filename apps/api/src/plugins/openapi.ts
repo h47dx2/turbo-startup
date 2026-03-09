@@ -46,7 +46,7 @@ export async function registerOpenApiPlugins(app: FastifyInstance) {
 
   await app.register(fastifySwaggerUi, {
     routePrefix: "/docs",
-    staticCSP: true,
+    staticCSP: false,
     uiConfig: {
       docExpansion: "list",
       deepLinking: false,
