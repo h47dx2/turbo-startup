@@ -38,22 +38,22 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-104 p-0">
+    <div className="w-full max-w-none p-0 lg:max-w-104">
       <span className="sr-only">Login</span>
-      <h1 className="[font-family:var(--font-bricolage),var(--font-dm-sans),sans-serif] text-[38px] font-bold text-slate-900">
+      <h1 className="[font-family:var(--font-bricolage),var(--font-dm-sans),sans-serif] text-[34px] font-bold text-slate-900 lg:text-[38px]">
         Sign in
       </h1>
-      <p className="mt-1 [font-family:var(--font-dm-sans),sans-serif] text-[15px] text-slate-500">
+      <p className="mt-1 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-500 lg:text-[15px]">
         Use your work email and password to continue.
       </p>
 
-      <form className="mt-8 space-y-8" onSubmit={onSubmit}>
+      <form className="mt-5 space-y-5 lg:mt-8 lg:space-y-8" onSubmit={onSubmit}>
         <div className="space-y-2">
           <label className="[font-family:var(--font-dm-sans),sans-serif] text-[13px] font-semibold text-slate-700" htmlFor="email">
             Email
           </label>
           <input
-            className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
+            className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[15px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500 lg:text-[14px]"
             id="email"
             type="email"
             placeholder="you@company.com"
@@ -69,7 +69,7 @@ export function LoginForm() {
           </label>
           <div className="relative">
             <input
-              className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-11 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
+              className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-11 [font-family:var(--font-dm-sans),sans-serif] text-[15px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500 lg:text-[14px]"
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••••••"
@@ -92,7 +92,7 @@ export function LoginForm() {
         {error ? <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
 
         <button
-          className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[14px] font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[16px] font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60 lg:text-[14px]"
           type="submit"
           disabled={isSubmitting}
         >
@@ -100,7 +100,7 @@ export function LoginForm() {
         </button>
 
         <button
-          className="flex w-full items-center justify-center rounded bg-white px-3 py-2.5"
+          className="flex w-full items-center justify-center rounded-xl bg-slate-50 px-4 py-3.5"
           type="button"
           aria-label="Sign in with Google (coming soon)"
         >
@@ -130,7 +130,7 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="mt-8 [font-family:var(--font-dm-sans),sans-serif] text-[13px] font-medium text-slate-600">
+      <p className="mt-5 text-center [font-family:var(--font-dm-sans),sans-serif] text-[13px] font-medium text-slate-600 lg:mt-8 lg:text-left">
         No account yet?{" "}
         <Link href="/register" className="text-[13px] font-semibold text-blue-600 hover:text-blue-500">
           Create one

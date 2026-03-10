@@ -1,0 +1,308 @@
+{
+  "version": "2.8",
+  "children": [
+    {
+      "type": "frame",
+      "id": "yTpYI",
+      "x": 0,
+      "y": 0,
+      "name": "Login Mobile",
+      "width": 390,
+      "height": 844,
+      "fill": "#FFFFFF",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "ItDCO",
+          "name": "Brand Hero",
+          "width": "fill_container",
+          "height": 320,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1659284994825-a7bd3b5c1804?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMwNDM0Nzd8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "layout": "vertical",
+          "padding": [
+            24,
+            20
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "b63mQ",
+              "name": "Hero Overlay",
+              "width": "fill_container",
+              "fill": "#00000000",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bXgBN",
+                  "name": "Brand",
+                  "fill": "#93C5FD",
+                  "content": "TURBO STARTUP",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "hDXHa",
+                  "name": "Hero Title",
+                  "fill": "#F8FAFC",
+                  "content": "Built for teams\nthat ship fast.",
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 46,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "83jbr",
+                  "name": "Hero Sub",
+                  "fill": "#E2E8F0",
+                  "textGrowth": "fixed-width",
+                  "width": 336,
+                  "content": "A focused workspace for product, engineering, and growth.",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "27qXi",
+          "name": "Auth Panel",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#FFFFFF",
+          "layout": "vertical",
+          "padding": [
+            20,
+            16,
+            24,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "M5HUY",
+              "name": "Login Card",
+              "width": "fill_container",
+              "fill": "#FFFFFF",
+              "layout": "vertical",
+              "gap": 20,
+              "padding": [
+                8,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fN380",
+                  "name": "Title",
+                  "fill": "#0F172A",
+                  "content": "Sign in",
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 34,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "HHGBh",
+                  "name": "Subtitle",
+                  "fill": "#64748B",
+                  "content": "Use your work email and password to continue.",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "B5FDR",
+                  "name": "Email Label",
+                  "fill": "#334155",
+                  "content": "Email",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "VmUhf",
+                  "name": "Email Input",
+                  "width": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YoUZm",
+                      "name": "Email Placeholder",
+                      "fill": "#94A3B8",
+                      "content": "you@company.com",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "BQyLq",
+                  "name": "Password Label",
+                  "fill": "#334155",
+                  "content": "Password",
+                  "fontFamily": "DM Sans",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "S8xEk",
+                  "name": "Password Input",
+                  "width": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gXDBy",
+                      "name": "Password Placeholder",
+                      "fill": "#94A3B8",
+                      "content": "••••••••••••",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HUhnx",
+                  "name": "Primary Button",
+                  "width": "fill_container",
+                  "fill": "#2563EB",
+                  "cornerRadius": 12,
+                  "padding": [
+                    15,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "V5zK5",
+                      "name": "Primary Text",
+                      "fill": "#FFFFFF",
+                      "content": "Sign in",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 16,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GwWxl",
+                  "name": "Secondary Button",
+                  "width": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 12,
+                  "padding": [
+                    13,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wqYsi",
+                      "name": "Google Row",
+                      "gap": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "AVVy3",
+                          "name": "Google Icon",
+                          "width": 16,
+                          "height": 16,
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "./images/google-firebase-clean.png",
+                            "mode": "fill"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "uwLST",
+                          "name": "Google Label",
+                          "fill": "#3C4043",
+                          "content": "Sign in with Google",
+                          "fontFamily": "Roboto",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bV9ZB",
+                  "name": "Footer Row",
+                  "width": "fill_container",
+                  "gap": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "36AT8",
+                      "name": "Footer Lead",
+                      "fill": "#475569",
+                      "content": "No account yet?",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eO4c9",
+                      "name": "Footer Link",
+                      "fill": "#2563EB",
+                      "content": "Create one",
+                      "fontFamily": "DM Sans",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
