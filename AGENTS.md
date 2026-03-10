@@ -9,9 +9,10 @@
 - Use pnpm only.
 
 ## Quality gates
-- Run lint, typecheck, and build after each milestone.
+- Run check:tailwind, lint, typecheck, and build after each milestone.
 - Do not leave the repo in a failing state.
 - Do not introduce any TailwindCSS warnings.
+- If check:tailwind reports any warning, fix it to zero before finishing.
 - Follow TailwindCSS best practices (utility-first, avoid inline styles, avoid conflicting/duplicated classes, and keep class usage consistent and maintainable).
 
 ## Scope control

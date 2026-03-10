@@ -1,5 +1,6 @@
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tailwindcss from "eslint-plugin-tailwindcss";
+import tailwindCanonicalClasses from "eslint-plugin-tailwind-canonical-classes";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -13,6 +14,20 @@ config.push({
     tailwindcss: {
       config: tailwindV4CssEntry
     }
+  }
+});
+
+config.push({
+  plugins: {
+    "tailwind-canonical-classes": tailwindCanonicalClasses
+  },
+  rules: {
+    "tailwind-canonical-classes/tailwind-canonical-classes": [
+      "warn",
+      {
+        cssPath: tailwindV4CssEntry
+      }
+    ]
   }
 });
 

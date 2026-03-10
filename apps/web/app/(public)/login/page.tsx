@@ -12,16 +12,16 @@ export default function LoginPage() {
           <p className="[font-family:var(--font-dm-sans),sans-serif] text-[24px] font-bold text-sky-300">
             TURBO STARTUP
           </p>
-          <h1 className="max-w-[620px] [font-family:var(--font-bricolage),var(--font-dm-sans),sans-serif] text-[80px] leading-[1.04] font-bold whitespace-pre-line text-slate-50">
+          <h1 className="max-w-155 [font-family:var(--font-bricolage),var(--font-dm-sans),sans-serif] text-[80px] leading-[1.04] font-bold whitespace-pre-line text-slate-50">
             {"Built for teams\nthat ship fast."}
           </h1>
-          <p className="max-w-[620px] [font-family:var(--font-dm-sans),sans-serif] text-[20px] text-slate-200">
+          <p className="max-w-155 [font-family:var(--font-dm-sans),sans-serif] text-[20px] text-slate-200">
             A focused workspace for product, engineering, and growth.
           </p>
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center bg-white px-9 py-10 lg:px-[72px] lg:py-[136px]">
+      <section className="flex min-h-screen items-center justify-center bg-white px-9 py-10 lg:px-18 lg:py-34">
         <LoginForm />
       </section>
     </main>

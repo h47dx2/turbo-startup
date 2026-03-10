@@ -38,7 +38,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-[416px] p-0">
+    <div className="w-full max-w-104 p-0">
       <span className="sr-only">Login</span>
       <h1 className="[font-family:var(--font-bricolage),var(--font-dm-sans),sans-serif] text-[38px] font-bold text-slate-900">
         Sign in
@@ -53,7 +53,7 @@ export function LoginForm() {
             Email
           </label>
           <input
-            className="w-full rounded-xl border-0 bg-slate-50 px-4 py-[14px] [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
+            className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
             id="email"
             type="email"
             placeholder="you@company.com"
@@ -69,7 +69,7 @@ export function LoginForm() {
           </label>
           <div className="relative">
             <input
-              className="w-full rounded-xl border-0 bg-slate-50 px-4 py-[14px] pr-11 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
+              className="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-11 [font-family:var(--font-dm-sans),sans-serif] text-[14px] text-slate-400 ring-1 ring-transparent outline-none focus:ring-blue-500"
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••••••"
@@ -92,7 +92,7 @@ export function LoginForm() {
         {error ? <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
 
         <button
-          className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-[14px] [font-family:var(--font-dm-sans),sans-serif] text-[14px] font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3.5 [font-family:var(--font-dm-sans),sans-serif] text-[14px] font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           disabled={isSubmitting}
         >
