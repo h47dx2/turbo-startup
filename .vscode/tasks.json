@@ -34,13 +34,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Dev: turbo (all workspaces)",
+      "label": "Dev",
       "type": "shell",
-      "command": "zsh",
-      "args": [
-        "-lc",
-        "repo=\"${workspaceFolder}\"; pids=\"$(pgrep -f \"$repo/.+turbo run dev\" || true; pgrep -f \"$repo/.+next dev -p 3000\" || true; pgrep -f \"$repo/.+tsx.+src/server.ts\" || true)\"; pids=$(echo \"$pids\" | sed '/^$/d' | sort -u); if [ -n \"$pids\" ]; then echo \"[dev-task] kill old dev pids -> $pids\"; echo \"$pids\" | xargs kill -9; fi; for p in 3000 4000; do pids=$(lsof -ti tcp:$p || true); if [ -n \"$pids\" ]; then echo \"[dev-task] kill :$p -> $pids\"; echo \"$pids\" | xargs kill -9; fi; done; pnpm dev"
-      ],
+      "command": "pnpm dev",
       "options": {
         "cwd": "${workspaceFolder}"
       },
