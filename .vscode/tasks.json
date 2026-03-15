@@ -34,7 +34,20 @@
       "problemMatcher": []
     },
     {
+      "label": "Kill dev ports",
+      "type": "shell",
+      "command": "sh -c 'PIDS=$( (lsof -tiTCP:3000 -sTCP:LISTEN || true; lsof -tiTCP:4000 -sTCP:LISTEN || true) | sort -u ); if [ -n \"$PIDS\" ]; then kill $PIDS; fi'",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Dev",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Kill dev ports"
+      ],
       "type": "shell",
       "command": "pnpm dev",
       "options": {
