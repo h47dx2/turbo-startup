@@ -1,54 +1,41 @@
-import type { FastifyInstance } from "fastify";
+import type { Hono } from "hono";
 import { ZodError } from "zod";
 import { AppError } from "../lib/errors.js";
 
-function isFastifyValidationError(error: unknown): error is { code: "FST_ERR_VALIDATION"; validation?: unknown } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "FST_ERR_VALIDATION"
-  );
-}
-
-export async function registerErrorHandler(app: FastifyInstance) {
-  app.setErrorHandler((error, request, reply) => {
+export function registerErrorHandler(app: Hono) {
+  app.onError((error, c) => {
     if (error instanceof AppError) {
-      return reply.status(error.statusCode).send({
+      return c.body(
+        JSON.stringify({
         error: {
           code: error.code,
           message: error.message,
           details: error.details
         }
-      });
+        }),
+        error.statusCode as 400 | 401 | 404 | 409,
+        {
+          "content-type": "application/json"
+        }
+      );
     }
 
     if (error instanceof ZodError) {
-      return reply.status(400).send({
+      return c.json({
         error: {
           code: "validation_error",
           message: "Invalid request payload",
           details: error.flatten()
         }
-      });
+      }, { status: 400 });
     }
 
-    if (isFastifyValidationError(error)) {
-      return reply.status(400).send({
-        error: {
-          code: "validation_error",
-          message: "Invalid request payload",
-          details: error.validation
-        }
-      });
-    }
-
-    request.log.error(error);
-    return reply.status(500).send({
+    console.error(error);
+    return c.json({
       error: {
         code: "internal_error",
         message: "Internal Server Error"
       }
-    });
+    }, { status: 500 });
   });
 }

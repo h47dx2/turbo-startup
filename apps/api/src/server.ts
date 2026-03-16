@@ -1,17 +1,23 @@
 import "dotenv/config";
+import { serve } from "@hono/node-server";
 import { buildApp } from "./app.js";
 import { getEnv } from "./config/env.js";
 
 const env = getEnv();
 
-buildApp()
-  .then((app) =>
-    app.listen({
-      host: env.HOST,
+try {
+  const app = await buildApp();
+  serve(
+    {
+      fetch: app.fetch,
+      hostname: env.HOST,
       port: env.PORT
-    })
-  )
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    },
+    (info) => {
+      console.log(`API listening on http://${info.address}:${info.port}`);
+    }
+  );
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

@@ -1,28 +1,22 @@
-import type { FastifyInstance } from "fastify";
-import fastifyCookie from "@fastify/cookie";
-import fastifyCors from "@fastify/cors";
-import fastifyHelmet from "@fastify/helmet";
-import fastifyRateLimit from "@fastify/rate-limit";
-import fastifySensible from "@fastify/sensible";
+import type { Hono } from "hono";
+import { logger } from "hono/logger";
+import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
 import { getEnv } from "../config/env.js";
 
-export async function registerPlatformPlugins(app: FastifyInstance) {
+export function registerPlatformPlugins(app: Hono) {
   const env = getEnv();
 
-  await app.register(fastifyCookie);
-
-  await app.register(fastifyCors, {
+  app.use("*", logger());
+  app.use(
+    "*",
+    cors({
     origin: env.ALLOWED_WEB_ORIGIN,
     credentials: true
-  });
-
-  await app.register(fastifyHelmet, {
-    contentSecurityPolicy: env.NODE_ENV === "production"
-  });
-  await app.register(fastifySensible);
-
-  await app.register(fastifyRateLimit, {
-    max: 100,
-    timeWindow: "1 minute"
-  });
+    })
+  );
+  app.use(
+    "*",
+    secureHeaders()
+  );
 }

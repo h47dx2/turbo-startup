@@ -3,7 +3,7 @@
 Production-oriented auth foundation in a Turborepo monorepo:
 
 - `apps/web`: Next.js App Router UI + thin BFF adapters
-- `apps/api`: Fastify backend (single business-logic source of truth)
+- `apps/api`: Hono backend (single business-logic source of truth)
 - `packages/database`: Prisma + Supabase Postgres integration
 - `packages/auth`: password/JWT/refresh token helpers
 - `packages/validation`: shared Zod contracts
@@ -11,7 +11,7 @@ Production-oriented auth foundation in a Turborepo monorepo:
 
 ## Architecture rules
 
-- Fastify owns auth/domain logic and DB writes.
+- Hono owns auth/domain logic and DB writes.
 - Next.js is UI/BFF only.
 - Refresh tokens are opaque random strings.
 - Only hashed refresh tokens are stored in DB.
@@ -22,6 +22,28 @@ Production-oriented auth foundation in a Turborepo monorepo:
 - Node.js `>=24`
 - pnpm `10.x`
 - Supabase Postgres project
+
+## Backend framework baseline
+
+- Backend framework is Hono (Node runtime).
+- Version snapshot (checked on March 16, 2026):
+  - `hono`: `4.12.8`
+  - `@hono/node-server`: `1.19.11`
+  - `@hono/zod-validator`: `0.7.6`
+- Install backend deps using latest stable packages at execution time:
+  - `hono@latest`
+  - `@hono/node-server@latest`
+  - `@hono/zod-validator@latest`
+- Use Hono built-in middleware/helper imports (not separate npm packages):
+  - `hono/cors`
+  - `hono/cookie`
+  - `hono/jwt`
+  - `hono/csrf`
+  - `hono/secure-headers`
+- Before each migration milestone, re-check latest versions with:
+  - `pnpm view hono version`
+  - `pnpm view @hono/node-server version`
+  - `pnpm view @hono/zod-validator version`
 
 ## Environment variables
 
@@ -84,7 +106,7 @@ pnpm --filter @repo/web dev
 For production, prefer a same-origin gateway setup to avoid browser CORS complexity:
 
 - `https://app.example.com/` -> Next.js (`apps/web`)
-- `https://app.example.com/api/*` -> Fastify (`apps/api`)
+- `https://app.example.com/api/*` -> Hono (`apps/api`)
 
 With this layout, browser requests stay same-origin from the user's perspective.
 

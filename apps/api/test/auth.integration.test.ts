@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import type { FastifyInstance } from "fastify";
+import type { Hono } from "hono";
 import { buildApp } from "../src/app.js";
 import { prisma } from "@repo/database";
 
@@ -30,12 +30,21 @@ function parseCookieValue(setCookieHeader: string, cookieName: string): string |
   return value;
 }
 
-function getCookieFromSetCookie(setCookieHeader: string | string[] | undefined, cookieName: string): string | null {
-  if (!setCookieHeader) {
-    return null;
+function getSetCookieHeaders(response: Response): string[] {
+  const headersWithSetCookie = response.headers as Headers & {
+    getSetCookie?: () => string[];
+  };
+
+  if (headersWithSetCookie.getSetCookie) {
+    return headersWithSetCookie.getSetCookie();
   }
 
-  const cookieHeaders = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
+  const setCookieHeader = response.headers.get("set-cookie");
+  return setCookieHeader ? [setCookieHeader] : [];
+}
+
+function getCookieFromSetCookie(response: Response, cookieName: string): string | null {
+  const cookieHeaders = getSetCookieHeaders(response);
   for (const cookieHeader of cookieHeaders) {
     const value = parseCookieValue(cookieHeader, cookieName);
     if (value) {
@@ -46,10 +55,40 @@ function getCookieFromSetCookie(setCookieHeader: string | string[] | undefined, 
   return null;
 }
 
+function serializeCookies(cookies: Record<string, string>) {
+  return Object.entries(cookies)
+    .map(([name, value]) => `${name}=${value}`)
+    .join("; ");
+}
+
+type ApiRequestOptions = {
+  method: string;
+  path: string;
+  payload?: unknown;
+  headers?: Record<string, string>;
+  cookies?: Record<string, string>;
+};
+
+async function requestApi(app: Hono, options: ApiRequestOptions): Promise<Response> {
+  const headers = new Headers(options.headers);
+  if (options.payload !== undefined) {
+    headers.set("content-type", "application/json");
+  }
+  if (options.cookies && Object.keys(options.cookies).length > 0) {
+    headers.set("cookie", serializeCookies(options.cookies));
+  }
+
+  return app.request(options.path, {
+    method: options.method,
+    headers,
+    body: options.payload !== undefined ? JSON.stringify(options.payload) : undefined
+  });
+}
+
 if (!process.env.DATABASE_URL) {
   test.skip("API integration tests require DATABASE_URL", () => {});
 } else {
-  let app: FastifyInstance;
+  let app: Hono;
   let mobileAuthSecret = "";
 
   test.before(async () => {
@@ -60,20 +99,18 @@ if (!process.env.DATABASE_URL) {
     process.env.ALLOWED_WEB_ORIGIN = process.env.ALLOWED_WEB_ORIGIN ?? "http://localhost:3000";
     mobileAuthSecret = process.env.MOBILE_AUTH_SHARED_SECRET;
     app = await buildApp();
-    await app.ready();
   });
 
   test.after(async () => {
-    await app.close();
     await prisma.$disconnect();
   });
 
   test("register -> me -> refresh -> logout flow", async () => {
     const email = `itest_${Date.now()}@example.com`;
 
-    const registerResponse = await app.inject({
+    const registerResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/register",
+      path: "/auth/register",
       payload: {
         email,
         password: "StrongPass123",
@@ -81,15 +118,13 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(registerResponse.statusCode, 200);
-    const registerBody = registerResponse.json() as AuthResponse;
+    assert.equal(registerResponse.status, 200);
+    const registerBody = (await registerResponse.json()) as AuthResponse;
     assert.equal(registerBody.user.email, email);
     assert.ok(registerBody.token.accessToken.length > 20);
 
-    const setCookieHeader = registerResponse.headers["set-cookie"];
-    assert.ok(setCookieHeader);
-    const refreshToken = getCookieFromSetCookie(setCookieHeader, "refresh_token");
-    const csrfToken = getCookieFromSetCookie(setCookieHeader, "csrf_token");
+    const refreshToken = getCookieFromSetCookie(registerResponse, "refresh_token");
+    const csrfToken = getCookieFromSetCookie(registerResponse, "csrf_token");
 
     assert.ok(refreshToken);
     assert.ok(csrfToken);
@@ -102,21 +137,21 @@ if (!process.env.DATABASE_URL) {
     assert.ok(refreshRecord);
     assert.notEqual(refreshRecord?.tokenHash, refreshToken);
 
-    const meResponse = await app.inject({
+    const meResponse = await requestApi(app, {
       method: "GET",
-      url: "/auth/me",
+      path: "/auth/me",
       headers: {
         authorization: `Bearer ${registerBody.token.accessToken}`
       }
     });
 
-    assert.equal(meResponse.statusCode, 200);
+    assert.equal(meResponse.status, 200);
 
-    const refreshResponse = await app.inject({
+    const refreshResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       cookies: {
-        refresh_token: refreshToken,
+        refresh_token: refreshToken ?? "",
         csrf_token: csrfToken ?? ""
       },
       headers: {
@@ -125,18 +160,16 @@ if (!process.env.DATABASE_URL) {
       payload: {}
     });
 
-    assert.equal(refreshResponse.statusCode, 200);
-    const rotatedHeader = refreshResponse.headers["set-cookie"];
-    assert.ok(rotatedHeader);
-    const rotatedToken = getCookieFromSetCookie(rotatedHeader, "refresh_token");
-    const rotatedCsrfToken = getCookieFromSetCookie(rotatedHeader, "csrf_token");
+    assert.equal(refreshResponse.status, 200);
+    const rotatedToken = getCookieFromSetCookie(refreshResponse, "refresh_token");
+    const rotatedCsrfToken = getCookieFromSetCookie(refreshResponse, "csrf_token");
     assert.ok(rotatedToken);
     assert.ok(rotatedCsrfToken);
     assert.notEqual(rotatedToken, refreshToken);
 
-    const logoutResponse = await app.inject({
+    const logoutResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/logout",
+      path: "/auth/logout",
       cookies: {
         refresh_token: rotatedToken ?? "",
         csrf_token: rotatedCsrfToken ?? ""
@@ -147,11 +180,11 @@ if (!process.env.DATABASE_URL) {
       payload: {}
     });
 
-    assert.equal(logoutResponse.statusCode, 200);
+    assert.equal(logoutResponse.status, 200);
 
-    const refreshAfterLogout = await app.inject({
+    const refreshAfterLogout = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       cookies: {
         refresh_token: rotatedToken ?? "",
         csrf_token: rotatedCsrfToken ?? ""
@@ -162,15 +195,15 @@ if (!process.env.DATABASE_URL) {
       payload: {}
     });
 
-    assert.equal(refreshAfterLogout.statusCode, 401);
+    assert.equal(refreshAfterLogout.status, 401);
   });
 
   test("mobile auth mode returns refresh token in response body", async () => {
     const email = `mobile_${Date.now()}@example.com`;
 
-    const registerResponse = await app.inject({
+    const registerResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/register",
+      path: "/auth/register",
       headers: {
         "x-auth-mode": "mobile",
         "x-mobile-auth-secret": mobileAuthSecret
@@ -182,13 +215,13 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(registerResponse.statusCode, 200);
-    const registerBody = registerResponse.json() as AuthResponse;
+    assert.equal(registerResponse.status, 200);
+    const registerBody = (await registerResponse.json()) as AuthResponse;
     assert.ok(registerBody.refreshToken);
 
-    const refreshResponse = await app.inject({
+    const refreshResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       headers: {
         "x-auth-mode": "mobile",
         "x-mobile-auth-secret": mobileAuthSecret
@@ -198,8 +231,8 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(refreshResponse.statusCode, 200);
-    const refreshBody = refreshResponse.json() as AuthResponse;
+    assert.equal(refreshResponse.status, 200);
+    const refreshBody = (await refreshResponse.json()) as AuthResponse;
     assert.ok(refreshBody.refreshToken);
     assert.notEqual(refreshBody.refreshToken, registerBody.refreshToken);
   });
@@ -207,9 +240,9 @@ if (!process.env.DATABASE_URL) {
   test("register/login do not reflect raw XSS payloads in error responses", async () => {
     const xssPayload = '<script>alert("xss")</script>';
 
-    const invalidRegisterResponse = await app.inject({
+    const invalidRegisterResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/register",
+      path: "/auth/register",
       payload: {
         email: xssPayload,
         password: "StrongPass123",
@@ -217,30 +250,30 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(invalidRegisterResponse.statusCode, 400);
-    assert.match(invalidRegisterResponse.headers["content-type"] ?? "", /application\/json/);
-    assert.equal(invalidRegisterResponse.body.includes(xssPayload), false);
+    assert.equal(invalidRegisterResponse.status, 400);
+    assert.match(invalidRegisterResponse.headers.get("content-type") ?? "", /application\/json/);
+    assert.equal((await invalidRegisterResponse.text()).includes(xssPayload), false);
 
-    const invalidLoginResponse = await app.inject({
+    const invalidLoginResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/login",
+      path: "/auth/login",
       payload: {
         email: "safe-user@example.com",
         password: xssPayload
       }
     });
 
-    assert.equal(invalidLoginResponse.statusCode, 401);
-    assert.match(invalidLoginResponse.headers["content-type"] ?? "", /application\/json/);
-    assert.equal(invalidLoginResponse.body.includes(xssPayload), false);
+    assert.equal(invalidLoginResponse.status, 401);
+    assert.match(invalidLoginResponse.headers.get("content-type") ?? "", /application\/json/);
+    assert.equal((await invalidLoginResponse.text()).includes(xssPayload), false);
   });
 
   test("refresh replay detection revokes token family", async () => {
     const email = `replay_${Date.now()}@example.com`;
 
-    const registerResponse = await app.inject({
+    const registerResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/register",
+      path: "/auth/register",
       payload: {
         email,
         password: "StrongPass123",
@@ -248,17 +281,16 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    const registerBody = registerResponse.json() as AuthResponse;
-    const setCookieHeader = registerResponse.headers["set-cookie"];
-    const originalRefresh = getCookieFromSetCookie(setCookieHeader, "refresh_token");
-    const originalCsrf = getCookieFromSetCookie(setCookieHeader, "csrf_token");
+    const registerBody = (await registerResponse.json()) as AuthResponse;
+    const originalRefresh = getCookieFromSetCookie(registerResponse, "refresh_token");
+    const originalCsrf = getCookieFromSetCookie(registerResponse, "csrf_token");
 
     assert.ok(originalRefresh);
     assert.ok(originalCsrf);
 
-    const rotateResponse = await app.inject({
+    const rotateResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       cookies: {
         refresh_token: originalRefresh ?? "",
         csrf_token: originalCsrf ?? ""
@@ -269,16 +301,15 @@ if (!process.env.DATABASE_URL) {
       payload: {}
     });
 
-    assert.equal(rotateResponse.statusCode, 200);
-    const rotatedHeader = rotateResponse.headers["set-cookie"];
-    const rotatedRefresh = getCookieFromSetCookie(rotatedHeader, "refresh_token");
+    assert.equal(rotateResponse.status, 200);
+    const rotatedRefresh = getCookieFromSetCookie(rotateResponse, "refresh_token");
 
     assert.ok(rotatedRefresh);
     const rotatedRefreshToken = rotatedRefresh as string;
 
-    const replayResponse = await app.inject({
+    const replayResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       headers: {
         "x-auth-mode": "mobile",
         "x-mobile-auth-secret": mobileAuthSecret
@@ -288,13 +319,13 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(replayResponse.statusCode, 401);
-    const replayBody = replayResponse.json() as { error: { code: string } };
+    assert.equal(replayResponse.status, 401);
+    const replayBody = (await replayResponse.json()) as { error: { code: string } };
     assert.equal(replayBody.error.code, "refresh_replay_detected");
 
-    const rotatedReuseResponse = await app.inject({
+    const rotatedReuseResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       headers: {
         "x-auth-mode": "mobile",
         "x-mobile-auth-secret": mobileAuthSecret
@@ -304,8 +335,8 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(rotatedReuseResponse.statusCode, 401);
-    const rotatedReuseBody = rotatedReuseResponse.json() as { error: { code: string } };
+    assert.equal(rotatedReuseResponse.status, 401);
+    const rotatedReuseBody = (await rotatedReuseResponse.json()) as { error: { code: string } };
     assert.equal(rotatedReuseBody.error.code, "refresh_replay_detected");
 
     const tokenRows = await prisma.refreshToken.findMany({
@@ -321,9 +352,9 @@ if (!process.env.DATABASE_URL) {
   test("logout-all revokes all active refresh tokens", async () => {
     const email = `logout_all_${Date.now()}@example.com`;
 
-    const registerResponse = await app.inject({
+    const registerResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/register",
+      path: "/auth/register",
       payload: {
         email,
         password: "StrongPass123",
@@ -331,16 +362,16 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(registerResponse.statusCode, 200);
-    const registerBody = registerResponse.json() as AuthResponse;
-    const initialRefreshToken = getCookieFromSetCookie(registerResponse.headers["set-cookie"], "refresh_token");
-    const initialCsrfToken = getCookieFromSetCookie(registerResponse.headers["set-cookie"], "csrf_token");
+    assert.equal(registerResponse.status, 200);
+    const registerBody = (await registerResponse.json()) as AuthResponse;
+    const initialRefreshToken = getCookieFromSetCookie(registerResponse, "refresh_token");
+    const initialCsrfToken = getCookieFromSetCookie(registerResponse, "csrf_token");
     assert.ok(initialRefreshToken);
     assert.ok(initialCsrfToken);
 
-    const refreshResponse = await app.inject({
+    const refreshResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       cookies: {
         refresh_token: initialRefreshToken ?? "",
         csrf_token: initialCsrfToken ?? ""
@@ -351,24 +382,23 @@ if (!process.env.DATABASE_URL) {
       payload: {}
     });
 
-    assert.equal(refreshResponse.statusCode, 200);
-    const refreshSetCookie = refreshResponse.headers["set-cookie"];
-    const rotatedRefreshToken = getCookieFromSetCookie(refreshSetCookie, "refresh_token");
+    assert.equal(refreshResponse.status, 200);
+    const rotatedRefreshToken = getCookieFromSetCookie(refreshResponse, "refresh_token");
     assert.ok(rotatedRefreshToken);
 
-    const logoutAllResponse = await app.inject({
+    const logoutAllResponse = await requestApi(app, {
       method: "POST",
-      url: "/auth/logout-all",
+      path: "/auth/logout-all",
       headers: {
         authorization: `Bearer ${registerBody.token.accessToken}`
       }
     });
 
-    assert.equal(logoutAllResponse.statusCode, 200);
+    assert.equal(logoutAllResponse.status, 200);
 
-    const refreshAfterLogoutAll = await app.inject({
+    const refreshAfterLogoutAll = await requestApi(app, {
       method: "POST",
-      url: "/auth/refresh",
+      path: "/auth/refresh",
       headers: {
         "x-auth-mode": "mobile",
         "x-mobile-auth-secret": mobileAuthSecret
@@ -378,6 +408,6 @@ if (!process.env.DATABASE_URL) {
       }
     });
 
-    assert.equal(refreshAfterLogoutAll.statusCode, 401);
+    assert.equal(refreshAfterLogoutAll.status, 401);
   });
 }

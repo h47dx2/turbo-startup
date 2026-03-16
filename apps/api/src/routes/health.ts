@@ -1,47 +1,11 @@
-import type { FastifyInstance } from "fastify";
+import type { Hono } from "hono";
 import { prisma } from "@repo/database";
 
-export async function registerHealthRoutes(app: FastifyInstance) {
-  app.get(
-    "/health",
-    {
-      schema: {
-        tags: ["Health"],
-        summary: "Liveness probe",
-        response: {
-          200: {
-            type: "object",
-            required: ["ok"],
-            properties: {
-              ok: { type: "boolean", const: true }
-            }
-          }
-        }
-      }
-    },
-    async () => ({ ok: true })
-  );
+export function registerHealthRoutes(app: Hono) {
+  app.get("/health", (c) => c.json({ ok: true }));
 
-  app.get(
-    "/ready",
-    {
-      schema: {
-        tags: ["Health"],
-        summary: "Readiness probe",
-        response: {
-          200: {
-            type: "object",
-            required: ["ok"],
-            properties: {
-              ok: { type: "boolean", const: true }
-            }
-          }
-        }
-      }
-    },
-    async () => {
-      await prisma.$queryRaw`SELECT 1`;
-      return { ok: true };
-    }
-  );
+  app.get("/ready", async (c) => {
+    await prisma.$queryRaw`SELECT 1`;
+    return c.json({ ok: true });
+  });
 }

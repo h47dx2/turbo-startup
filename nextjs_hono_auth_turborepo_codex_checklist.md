@@ -1,16 +1,16 @@
 
-# Next.js + Fastify + Turborepo Auth Stack (Codex Checklist)
+# Next.js + Hono + Turborepo Auth Stack (Codex Checklist)
 
 Goal: Build a monorepo project using Turborepo with:
 - Next.js (App Router)
-- Fastify API server
+- Hono API server
 - Prisma ORM
 - Supabase PostgreSQL
 - Zod validation
 - JWT Access Token + Refresh Token authentication
 
 Principles:
-- Fastify = single source of backend business logic
+- Hono = single source of backend business logic
 - Next.js = UI / SSR / Server Components / thin Server Actions
 - Shared validation schemas via Zod
 - Refresh token rotation with hashed storage
@@ -28,7 +28,7 @@ Structure:
 
 apps/
   web (Next.js)
-  api (Fastify)
+  api (Hono)
 
 packages/
   database (Prisma)
@@ -48,15 +48,20 @@ packages/
 
 ---
 
-## 3. Setup Fastify API
+## 3. Setup Hono API
 
-- Create Fastify server
+- Create Hono server (Node runtime)
 - Install dependencies:
-  - fastify
-  - @fastify/cors
-  - @fastify/jwt
-  - @fastify/cookie
-  - zod
+  - `hono`
+  - `@hono/node-server`
+  - `@hono/zod-validator`
+  - `zod`
+- Use built-in middleware/helper import paths (not separate npm packages):
+  - `hono/cors`
+  - `hono/jwt`
+  - `hono/cookie`
+  - `hono/csrf`
+  - `hono/secure-headers`
 
 ---
 
@@ -125,7 +130,7 @@ Responsibilities:
 - Store access token in memory
 - Store refresh token in httpOnly cookie
 
-Server Actions call Fastify endpoints.
+Server Actions call Hono endpoints.
 
 ---
 

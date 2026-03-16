@@ -1,8 +1,10 @@
-# Next.js + Fastify + Turborepo + Supabase(Postgres) + Prisma + Zod + JWT(Auth)  
+# Next.js + Hono + Turborepo + Supabase(Postgres) + Prisma + Zod + JWT(Auth)  
 # Codex Execution Plan (Phased)
 
-> Goal: build a production-oriented monorepo where **Fastify is the only business backend**, **Next.js is the web app / BFF / SSR layer**, and auth is implemented with **JWT access token + refresh token rotation**.  
+> Goal: build a production-oriented monorepo where **Hono is the only business backend**, **Next.js is the web app / BFF / SSR layer**, and auth is implemented with **JWT access token + refresh token rotation**.  
 > This document is for **Codex execution**. Execute phase by phase. Do not skip validation gates.
+>
+> Framework migration note: this plan is also the execution baseline for migrating an existing `apps/api` from Fastify to Hono with no auth/security regressions.
 
 ---
 
@@ -12,7 +14,7 @@
 - Verify versions against **official docs** before installing.
 - Use **pnpm workspaces** + **Turborepo**.
 - Use **TypeScript** everywhere.
-- Use **Fastify** as the single backend truth for:
+- Use **Hono** as the single backend truth for:
   - auth
   - user domain logic
   - token issuing / rotation / revocation
@@ -23,7 +25,7 @@
   - Server Components
   - thin Server Actions / route handlers only when needed as web adapters
   - reading session cookies
-  - calling Fastify APIs from the server side
+  - calling Hono APIs from the server side
 - Do **not** put core auth business logic in Next.js.
 - Do **not** let Next.js directly become a second backend.
 - Use **Prisma** as the ORM.
@@ -33,6 +35,12 @@
 - Keep access token short-lived and refresh token rotatable.
 - Use **hashed refresh tokens in DB**, never store raw refresh tokens.
 - Prefer **Argon2id** for password hashing.
+
+Version snapshot (checked on **March 16, 2026** via npm registry metadata):
+
+- `hono`: `4.12.8`
+- `@hono/node-server`: `1.19.11`
+- `@hono/zod-validator`: `0.7.6`
 
 ---
 
@@ -44,7 +52,7 @@ Create the repository to match this structure:
 .
 ├─ apps/
 │  ├─ web/                  # Next.js App Router app
-│  └─ api/                  # Fastify API server
+│  └─ api/                  # Hono API server
 ├─ packages/
 │  ├─ database/             # Prisma schema, generated client, db helpers
 │  ├─ auth/                 # token helpers, password hashing, auth domain utils
@@ -64,7 +72,27 @@ Rules:
 - `apps/web` never imports Prisma directly for auth flows.
 - `packages/database` is consumed by `apps/api`, not by `apps/web` for core auth operations.
 - `packages/validation` contains shared Zod schemas used on both sides.
-- `packages/api-client` contains typed wrappers for calling Fastify from Next.js.
+- `packages/api-client` contains typed wrappers for calling Hono from Next.js.
+
+---
+
+## 1.5 Fastify -> Hono migration scope
+
+Migration objective:
+
+- replace Fastify runtime and plugin layer in `apps/api` with Hono on Node runtime
+- preserve existing auth contract (`/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/me`)
+- preserve JWT access + refresh rotation behavior and DB model semantics
+- preserve cookie/CSRF/CORS security posture
+
+Recommended migration order:
+
+1. Introduce Hono app entry (`app.ts` + `server.ts`) behind feature branch.
+2. Port cross-cutting middleware first (CORS, cookies, security headers, csrf).
+3. Port health/readiness routes.
+4. Port auth routes and handlers one by one with unchanged request/response contracts.
+5. Keep shared Zod contracts and API client stable; only swap server adapter layer.
+6. Run full quality gates and auth regression tests before removing Fastify-specific code.
 
 ---
 
@@ -75,7 +103,7 @@ Execute in this order only:
 1. Phase A — Workspace bootstrap
 2. Phase B — Shared packages foundation
 3. Phase C — Prisma + Supabase Postgres setup
-4. Phase D — Fastify API foundation
+4. Phase D — Hono API foundation
 5. Phase E — Auth domain implementation
 6. Phase F — Next.js app foundation
 7. Phase G — Web auth integration
@@ -98,14 +126,14 @@ At the end of each phase, complete the phase checklist before moving on.
 - Create `turbo.json`.
 - Set Node version to a currently supported version compatible with latest:
   - Next.js
-  - Fastify v5+
+  - Hono (current stable major at execution time)
   - Prisma
 - Prefer current stable Node LTS or current stable recommended by official docs at execution time.
 
 ## A2. Initialize apps
 
 - Create `apps/web` with latest stable **Next.js App Router** template using TypeScript.
-- Create `apps/api` as a standalone Fastify TypeScript app.
+- Create `apps/api` as a standalone Hono TypeScript app.
 
 ## A3. Initialize shared packages
 
@@ -306,24 +334,26 @@ Create:
 
 ---
 
-# Phase D — Fastify API foundation
+# Phase D — Hono API foundation
 
-## D1. Initialize Fastify app with plugins
+## D1. Initialize Hono app with official Node adapter + middleware
 
-Set up latest stable Fastify with:
+Set up latest stable Hono with:
 
-- sensible logging strategy
-- CORS configured narrowly for the web origin
-- `@fastify/cookie`
-- security-related headers strategy as appropriate
+- `hono` + `@hono/node-server`
+- sensible logging strategy (`hono/logger`)
+- CORS configured narrowly for the web origin (`hono/cors`)
+- cookie helpers (`hono/cookie`)
+- security headers (`hono/secure-headers`)
+- CSRF middleware/strategy (`hono/csrf`) for cookie-auth mutations
 - health route
 
 Important:
 
-- register cookie support early
-- keep plugin registration modular
+- compose middleware in a stable top-down order (request id -> logging -> security -> auth helpers -> routes)
+- keep middleware/route registration modular (`app.route('/auth', authRoute)`)
 
-## D2. Fastify app structure
+## D2. Hono app structure
 
 Use a clear structure such as:
 
@@ -331,7 +361,7 @@ Use a clear structure such as:
 apps/api/src/
 ├─ app.ts
 ├─ server.ts
-├─ plugins/
+├─ middleware/
 ├─ routes/
 │  └─ auth/
 ├─ modules/
@@ -346,8 +376,8 @@ apps/api/src/
 Use Zod-based validation strategy consistently.
 You may use:
 
-- shared Zod schemas directly with a Fastify Zod type provider approach, or
-- convert Zod to JSON Schema where needed
+- shared Zod schemas with `@hono/zod-validator`, or
+- OpenAPI-first contracts with `@hono/zod-openapi` if API docs-first is preferred
 
 Pick one coherent strategy and use it everywhere.
 
@@ -371,7 +401,7 @@ Output stable JSON shape.
 
 ## Phase D checklist
 
-- [ ] Fastify boots locally.
+- [ ] Hono boots locally.
 - [ ] Health route works.
 - [ ] Validation and error handling are wired.
 - [ ] Shared schemas can be consumed in routes.
@@ -517,7 +547,7 @@ In `apps/web`, follow these rules:
 - Server Components by default
 - Client Components only where interactivity is needed
 - no Prisma access for auth flow
-- all auth communication goes through API client to Fastify
+- all auth communication goes through API client to Hono
 
 ## F2. Web structure
 
@@ -547,7 +577,7 @@ Create web-side helpers for:
 
 - reading access token from secure storage strategy chosen for web
 - reading refresh cookie indirectly through server calls
-- calling Fastify refresh endpoint from the server side when needed
+- calling Hono refresh endpoint from the server side when needed
 
 Important architecture note:
 
@@ -577,7 +607,7 @@ Behavior:
 - [ ] Web app runs.
 - [ ] Public pages render.
 - [ ] Protected route pattern is in place.
-- [ ] API client can call Fastify from the server side.
+- [ ] API client can call Hono from the server side.
 
 ---
 
@@ -588,7 +618,7 @@ Behavior:
 Implement register page with:
 
 - form validation on client using shared Zod schema where appropriate
-- submit to a thin Next.js Server Action or route adapter, or directly to Fastify from the browser only if justified
+- submit to a thin Next.js Server Action or route adapter, or directly to Hono from the browser only if justified
 - preferred approach: use a thin server-side adapter for better cookie handling and cleaner architecture
 
 On success:
@@ -627,7 +657,7 @@ Implement server-side refresh logic for web requests:
 
 Implement logout action:
 
-- call Fastify logout endpoint
+- call Hono logout endpoint
 - clear local access/session state
 - redirect to login
 
@@ -842,7 +872,7 @@ Verify in database:
 
 Ensure:
 
-- no core auth logic duplicated in Next.js and Fastify
+- no core auth logic duplicated in Next.js and Hono
 - no Prisma access from Next.js auth flow
 - shared Zod schemas are reused
 - no secrets committed
@@ -854,7 +884,7 @@ Write concise setup instructions covering:
 - required env vars
 - local dev commands
 - migration commands
-- architecture note: Fastify is the auth/backend truth, Next.js is UI/BFF
+- architecture note: Hono is the auth/backend truth, Next.js is UI/BFF
 
 ## Final completion checklist
 
@@ -862,7 +892,7 @@ Write concise setup instructions covering:
 - [ ] Latest stable deps used at execution time.
 - [ ] Versions checked against official docs.
 - [ ] Next.js App Router web app works.
-- [ ] Fastify API works.
+- [ ] Hono API works.
 - [ ] Prisma works with Supabase Postgres.
 - [ ] Zod validation is shared.
 - [ ] JWT access token works.
@@ -889,15 +919,15 @@ Important packages to verify against official docs before install include:
 - next
 - react
 - react-dom
-- fastify
-- `@fastify/cookie`
-- `@fastify/cors`
+- hono
+- `@hono/node-server`
+- `@hono/zod-validator`
 - prisma
 - `@prisma/client`
 - zod
 - argon2
 - jsonwebtoken or a more modern officially maintained JWT library if better justified at execution time
-- any Fastify Zod/type-provider package used
+- any additional Hono package used (`@hono/swagger-ui`, `@hono/zod-openapi`, etc.)
 - turbo
 - typescript
 

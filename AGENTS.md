@@ -1,9 +1,10 @@
 # Project Working Rules
 
 ## Architecture
-- Fastify is the only backend business logic layer.
+- Hono is the only backend business logic layer.
 - Next.js must not become a second backend.
 - Prisma access belongs to backend/domain layer, not arbitrary web actions.
+- For Hono changes, verify latest stable versions and implementation details against official Hono docs first.
 
 ## Package manager
 - Use pnpm only.

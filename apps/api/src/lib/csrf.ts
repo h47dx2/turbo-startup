@@ -1,5 +1,4 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import type { FastifyRequest } from "fastify";
 import { badRequest } from "./errors.js";
 
 function signCsrfNonce(nonce: string, secret: string): string {
@@ -30,10 +29,12 @@ export function verifyCsrfToken(token: string, secret: string): boolean {
 }
 
 export function assertCsrfToken(
-  request: FastifyRequest,
+  input: {
+    csrfHeader?: string;
+    csrfCookie?: string;
+  },
   options: {
     secret: string;
-    cookieName: string;
     skip?: boolean;
   }
 ) {
@@ -41,9 +42,8 @@ export function assertCsrfToken(
     return;
   }
 
-  const headerValue = request.headers["x-csrf-token"];
-  const csrfHeader = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  const csrfCookie = request.cookies[options.cookieName];
+  const csrfHeader = input.csrfHeader;
+  const csrfCookie = input.csrfCookie;
 
   if (!csrfHeader || !csrfCookie) {
     throw badRequest("Missing CSRF token");
